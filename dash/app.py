@@ -51,7 +51,7 @@ class Page():
                 self.transactionGraph = Graph(self.key, self.currentAddress)
                 self.transactionGraph.getTopTransactionData(10)
                 toDisplay = self.transactionGraph.createGraphFromDict()
-                toDisplay.update_layout(height=900)
+                #toDisplay.update_layout(height=900)
                 return toDisplay
             return dash.no_update
          

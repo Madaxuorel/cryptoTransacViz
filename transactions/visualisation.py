@@ -80,6 +80,7 @@ class Graph():
 
         # Customize the appearance of the graph
         fig.update_layout(
+            height=900,
             title=f"Graph of Addresses with Center: {self.currentAddress}",
             showlegend=False,
             xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
@@ -95,6 +96,7 @@ def emptyGraph():
         initial_figure = go.Figure(
             data=[],
             layout=go.Layout(
+                height=900,
                 title="Enter an address to display the network graph",
                 xaxis={'visible': False},
                 yaxis={'visible': False},
