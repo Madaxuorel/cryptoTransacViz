@@ -10,8 +10,8 @@ from transactions.visualisation import Graph,emptyGraph
 from api.etherscan import etherScanApi
 from transactions.fraudAccounts import blacklistedAddresses
 
-TESTADDRESS = "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 key = "TWUQ778V3WRVAW2EBX1XZZ9BNHDGQN442B"
+
 def readCreds():
     try:
         with open("../utils/keys.json", 'r') as json_file:

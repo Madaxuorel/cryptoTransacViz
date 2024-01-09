@@ -73,7 +73,21 @@ class Graph():
 
         # Create a color map based on whether the node address is in the 'addresses' list
         node_color_map = ['red' if node in addresses else 'black' for node in G.nodes()]
-
+        isFraud = 'red' in node_color_map
+        print(isFraud)
+        annotations = []
+        if isFraud:
+            annotations.append(
+                go.layout.Annotation(
+                    text="This address has been reported as fraud",
+                    font=dict(size=16, color='red'),
+                    xref="paper",
+                    yref="paper",
+                    showarrow=True,
+                )
+            )
+        
+        
         # Add a trace for the nodes
         node_x = []
         node_y = []
@@ -98,8 +112,20 @@ class Graph():
         # Add the node trace to the figure
         fig.add_trace(node_trace)
 
+
+
+        
+        
         # Customize the appearance of the graph
-       
+        fig.update_layout(
+            height=900,
+            title=f"Graph of Addresses with Center: {self.currentAddress}",
+            showlegend=False,
+            xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+            yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+            plot_bgcolor='rgba(0,0,0,0)',  # Transparent background
+            annotations=annotations
+        )
 
         # Show the graph
         return fig
