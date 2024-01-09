@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import matplotlib
 import json
+from transactions.fraudAccounts import blacklistedAddresses
 
 TESTADDRESS = "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 
@@ -59,7 +60,7 @@ class Graph():
             # Convert the normalized weight to a color
             color = plt.cm.viridis(normalized_weight)
             color = matplotlib.colors.rgb2hex(color)
-
+        
             fig.add_trace(go.Scatter(
                 x=[x0, x1, None],  # Add None to create a segment
                 y=[y0, y1, None],
@@ -67,26 +68,38 @@ class Graph():
                 mode='lines'
             ))
 
+        # Assume 'addresses' is a list of address strings that you want to color red
+        addresses =  blacklistedAddresses() # Populate this list with the actual addresses
+
+        # Create a color map based on whether the node address is in the 'addresses' list
+        node_color_map = ['red' if node in addresses else 'black' for node in G.nodes()]
+
         # Add a trace for the nodes
+        node_x = []
+        node_y = []
         for node in G.nodes():
             x, y = pos[node]
-            fig.add_trace(go.Scatter(
-                x=[x], y=[y],
-                mode='markers+text',
-                text=[node,"tto "],
-                marker=dict(size=10, color='Black'),
-                hoverinfo='text'
-            ))
+            node_x.append(x)
+            node_y.append(y)
+
+        # Create the node trace using the color map
+        node_trace = go.Scatter(
+            x=node_x, y=node_y,
+            mode='markers+text',
+            text=list(G.nodes()),  # Or any other text you want to display
+            marker=dict(
+                size=10,
+                color=node_color_map,  # Use the color map here
+                line=dict(width=2)
+            ),
+            hoverinfo='text'
+        )
+
+        # Add the node trace to the figure
+        fig.add_trace(node_trace)
 
         # Customize the appearance of the graph
-        fig.update_layout(
-            height=900,
-            title=f"Graph of Addresses with Center: {self.currentAddress}",
-            showlegend=False,
-            xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-            yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-            plot_bgcolor='rgba(0,0,0,0)'  # Transparent background
-        )
+       
 
         # Show the graph
         return fig

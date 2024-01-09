@@ -8,6 +8,7 @@ import json
 sys.path.append("../")
 from transactions.visualisation import Graph,emptyGraph
 from api.etherscan import etherScanApi
+from transactions.fraudAccounts import blacklistedAddresses
 
 TESTADDRESS = "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 key = "TWUQ778V3WRVAW2EBX1XZZ9BNHDGQN442B"
@@ -28,6 +29,8 @@ class Page():
     """
     def __init__(self,etherScanApiKey):
         self.currentAddress = ''
+        self.blacklist = blacklistedAddresses()
+        print(self.blacklist)
         self.key = etherScanApiKey
         self.app = dash.Dash(__name__)
 
