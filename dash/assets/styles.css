@@ -1,0 +1,19 @@
+/* assets/styles.css */
+#input-field {
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #D9D9D9;
+}
+
+#submit-button {
+    padding: 10px;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#submit-button:hover {
+    background-color: #0056b3;
+}

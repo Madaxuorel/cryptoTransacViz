@@ -23,6 +23,9 @@ def readCreds():
 
 class Page():
     
+    """
+    Page html code, modified by callbacks    
+    """
     def __init__(self,etherScanApiKey):
         self.currentAddress = ''
         self.key = etherScanApiKey
@@ -30,13 +33,35 @@ class Page():
 
         # Define the initial layout
         self.app.layout = html.Div([
-            html.H1("Network Graph Visualization"),
-            dcc.Input(id='input-field', type='text', placeholder='Enter an address', debounce=True),
-            html.Button('Submit', id='submit-button', n_clicks=0),
-            dcc.Loading(id="loading-1",type="circle", children=[dcc.Graph(id='network-graph',figure=emptyGraph())]),
-        ])
+    html.H1("Transaction explorer", style={'textAlign': 'center'}),
+    html.Div(
+        [
+            dcc.Input(
+                id='input-field',
+                type='text',
+                placeholder='Enter an address',
+                debounce=True,
+                style={'flex': '1', 'marginRight': '10px'}
+            ),
+            html.Button('Submit', id='submit-button', n_clicks=0)
+        ],
+        style={
+            'display': 'flex', 
+            'justifyContent': 'center', 
+            'alignItems': 'center',
+            'width': '50%', 
+            'margin': '0 auto'
+        }
+    ),
+    dcc.Loading(id="loading-1", type="default", children=[dcc.Graph(id='network-graph',figure=emptyGraph())]),
+])
         self.setup_callbacks()
         
+        
+        
+    """
+    All callbacks
+    """
     def setup_callbacks(self):
         
         @self.app.callback(
@@ -57,6 +82,7 @@ class Page():
          
     def runApp(self):
         self.app.run(debug=True)
+    
     
     
 
