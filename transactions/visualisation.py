@@ -33,7 +33,7 @@ class Graph():
         except KeyError as k:
             print(f"Nothing to pop on {self.currentAddress}")
         
-        
+    
     def createGraphFromDict(self):
         # Initialize a NetworkX graph and add the central node
         G = nx.Graph()
@@ -91,5 +91,25 @@ class Graph():
         return fig
 
 
-
+def emptyGraph():
+        initial_figure = go.Figure(
+            data=[],
+            layout=go.Layout(
+                title="Enter an address to display the network graph",
+                xaxis={'visible': False},
+                yaxis={'visible': False},
+                annotations=[
+                    {
+                        "text": "No data yet - please enter an address.",
+                        "xref": "paper",
+                        "yref": "paper",
+                        "showarrow": False,
+                        "font": {
+                            "size": 20
+                        }
+                    }
+                ]
+            )
+        )
+        return initial_figure
 

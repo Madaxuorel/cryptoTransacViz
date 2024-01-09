@@ -6,7 +6,7 @@ import sys
 import json
 
 sys.path.append("../")
-from transactions.visualisation import Graph
+from transactions.visualisation import Graph,emptyGraph
 from api.etherscan import etherScanApi
 
 TESTADDRESS = "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
@@ -33,7 +33,7 @@ class Page():
             html.H1("Network Graph Visualization"),
             dcc.Input(id='input-field', type='text', placeholder='Enter an address', debounce=True),
             html.Button('Submit', id='submit-button', n_clicks=0),
-            dcc.Graph(id='network-graph')
+            dcc.Loading(id="loading-1",type="circle", children=[dcc.Graph(id='network-graph',figure=emptyGraph())]),
         ])
         self.setup_callbacks()
         
