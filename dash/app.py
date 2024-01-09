@@ -50,7 +50,9 @@ class Page():
                 # Now use self.currentAddress to update the graph
                 self.transactionGraph = Graph(self.key, self.currentAddress)
                 self.transactionGraph.getTopTransactionData(10)
-                return self.transactionGraph.createGraphFromDict()
+                toDisplay = self.transactionGraph.createGraphFromDict()
+                toDisplay.update_layout(height=900)
+                return toDisplay
             return dash.no_update
          
     def runApp(self):
