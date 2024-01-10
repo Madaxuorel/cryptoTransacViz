@@ -95,9 +95,9 @@ class Graph():
 
             # Multi-line hover text for each node
             if node != self.currentAddress:
-                totalEth = self.api.getEthValueTransferred(node,self.transactionType)
-                print(totalEth)
-                node_hover_text = f"Address: {node}<br>Transactions: {self.getNumberOfTransactions(node)}<br>Total transaction value (eth): {totalEth/1000000000000000000} eth<br>Total transaction value (usd): $test"
+                totalEth = self.api.getEthValueTransferred(node,self.transactionType)/1000000000000000000
+                totalUsd = totalEth * self.api.getEthValue()
+                node_hover_text = f"Address: {node}<br>Transactions: {self.getNumberOfTransactions(node)}<br>Total transaction value (eth): {totalEth} eth<br>Total transaction value (usd): {totalUsd}"
             else:
                 node_hover_text = f"Address: {node}"
             hover_text.append(node_hover_text)

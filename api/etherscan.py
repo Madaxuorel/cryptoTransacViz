@@ -103,11 +103,9 @@ class etherScanApi:
     """
     def getEthValueTransferred(self,account,transactionType):
         total = 0
-        print(account)
         if transactionType == 'from':
             for transaction in self.transactions:
                 if transaction["from"]==account:
-                    print(transaction["value"])
                     total += int(transaction["value"])  
             
             return total
