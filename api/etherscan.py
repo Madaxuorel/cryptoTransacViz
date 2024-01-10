@@ -56,6 +56,7 @@ class etherScanApi:
         
         return addressesReceived
     
+    
     def getTopNAddressesReceived(self,account,N):
         
         addressesReceived = self.getTopAddressesReceived(account)
