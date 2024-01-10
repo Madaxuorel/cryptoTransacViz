@@ -1,5 +1,5 @@
 import dash
-from dash import dcc,html
+from dash import dcc,html,callback_context
 from dash.dependencies import Input, Output, State
 import sys
 import json
@@ -35,11 +35,13 @@ class Page():
         self.currentAddress = ''
         self.blacklist = blacklistedAddresses()
         self.key = etherScanApiKey
-        self.app = dash.Dash(__name__)
+        self.app = dash.Dash(__name__, suppress_callback_exceptions=True,
+                             prevent_initial_callbacks='initial_duplicate')
 
         # Define the initial layout
         self.app.layout = html.Div([
     html.H1("Network Graph Visualization", style={'textAlign': 'center'}),
+    html.Div(id='dummy-output', style={'display': 'none'}),
     html.Div(
         [
             dcc.Input(
@@ -81,26 +83,41 @@ class Page():
     """
     All callbacks
     """
-    def setup_callbacks(self):
-        
+    def setup_callbacks(self):    
+            
         """
-        Read the input in the search bar + the search category and generates a new graph from it.
+        Reads the input in the search bar + the search category, or the clicked node,
+        and generates a new graph from it.
         """
         @self.app.callback(
             Output('network-graph', 'figure'),
-            [Input('submit-button', 'n_clicks')],
-            [State('input-field', 'value'), State('dropdown', 'value')]        
-            )
-        def updateGraph(n_clicks, value, transactionType):
-            if n_clicks and value:
+            [Input('submit-button', 'n_clicks'), Input('network-graph', 'clickData')],
+            [State('input-field', 'value'), State('dropdown', 'value')]
+        )
+        def update_graph(n_clicks, clickData, value, transactionType):
+            # Determine which input triggered the callback
+            ctx = callback_context
+            trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
+
+            if trigger_id == 'submit-button' and value:
                 self.currentAddress = value
-                # Now use self.currentAddress to update the graph
+                self.transactionGraph = Graph(self.key, self.currentAddress, transactionType)
+                self.transactionGraph.getTopTransactionData(10)
+                return self.transactionGraph.createGraphFromDict()
+            elif trigger_id == 'network-graph' and clickData:
+                clicked_node = clickData['points'][0]['text'].split('<br>')[0].split(":")[1].strip()
+                print(clicked_node)
+                self.currentAddress = clicked_node
                 self.transactionGraph = Graph(self.key, self.currentAddress,transactionType)
                 self.transactionGraph.getTopTransactionData(10)
                 toDisplay = self.transactionGraph.createGraphFromDict()
                 #toDisplay.update_layout(height=900)
                 return toDisplay
+
             return dash.no_update
+            
+        
+        
     
     """
     Runs the app.
