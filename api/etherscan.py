@@ -43,10 +43,10 @@ class etherScanApi:
     
     def getTopAddressesReceived(self,account):
         
-        transactions = self.getLatestTransactions(account)
+        self.transactions = self.getLatestTransactions(account)
         addressesReceived = {}
         
-        for transaction in transactions:
+        for transaction in self.transactions:
             if transaction["from"] not in addressesReceived.keys():
                 addressesReceived[transaction["from"]] = 1
             else:
@@ -63,9 +63,9 @@ class etherScanApi:
         return {k: v for i, (k, v) in enumerate(addressesReceived.items()) if i < N}
         
     def getTopAddressesSent(self,account):
-        transactions = self.getLatestTransactions(account)
+        self.transactions = self.getLatestTransactions(account)
         addressesSent = {}
-        for transaction in transactions:
+        for transaction in self.transactions:
             if transaction["to"] not in addressesSent.keys():
                 addressesSent[transaction["to"]] = 1
             else:
@@ -79,3 +79,20 @@ class etherScanApi:
         
         addressesSent = self.getTopAddressesSent(account)
         return {k: v for i, (k, v) in enumerate(addressesSent.items()) if i < N}
+    
+    def getEthValueTransferred(self,account,transactionType):
+        total = 0
+        print(account)
+        if transactionType == 'from':
+            for transaction in self.transactions:
+                if transaction["from"]==account:
+                    print(transaction["value"])
+                    total += int(transaction["value"])  
+            
+            return total
+        
+        elif transactionType == "to":
+            for transaction in self.transactions:
+                if transaction["to"]==account:
+                    total += int(transaction["value"]) 
+            return total

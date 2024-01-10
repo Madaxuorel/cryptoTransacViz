@@ -88,8 +88,8 @@ class Page():
             if n_clicks and value:
                 self.currentAddress = value
                 # Now use self.currentAddress to update the graph
-                self.transactionGraph = Graph(self.key, self.currentAddress)
-                self.transactionGraph.getTopTransactionData(10,transactionType)
+                self.transactionGraph = Graph(self.key, self.currentAddress,transactionType)
+                self.transactionGraph.getTopTransactionData(10)
                 toDisplay = self.transactionGraph.createGraphFromDict()
                 #toDisplay.update_layout(height=900)
                 return toDisplay

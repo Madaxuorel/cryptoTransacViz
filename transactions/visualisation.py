@@ -23,25 +23,27 @@ def readCreds():
 
 
 class Graph():
-    def __init__(self,key,address):
+    def __init__(self,key,address,transactionType):
+        self.transactionType = transactionType
         self.currentAddress = address.lower()
         self.api = etherscan.etherScanApi(key)
 
-    def getTopTransactionData(self,N,transactionType):
-        if transactionType == "from":
+    def getTopTransactionData(self,N):
+        if self.transactionType == "from":
             self.dataToShow = self.api.getTopNAddressesReceived(self.currentAddress,N+1)
             try:
                 self.dataToShow.pop(self.currentAddress)
                 self.dataToShow.pop('')
             except KeyError as k:
                 print(f"Nothing to pop on {self.currentAddress}")
-        elif transactionType == "to":
+        elif self.transactionType == "to":
             self.dataToShow = self.api.getTopNAddressesSent(self.currentAddress,N+1)
             try:
                 self.dataToShow.pop(self.currentAddress)
                 self.dataToShow.pop('')
             except KeyError as k:
                 print(f"Nothing to pop on {self.currentAddress}")
+    
             
     
     def getNumberOfTransactions(self,account):
@@ -93,7 +95,9 @@ class Graph():
 
             # Multi-line hover text for each node
             if node != self.currentAddress:
-                node_hover_text = f"Address: {node}<br>Transactions: {self.getNumberOfTransactions(node)}<br>Total transaction value (eth): test eth<br>Total transaction value (usd): $test"
+                totalEth = self.api.getEthValueTransferred(node,self.transactionType)
+                print(totalEth)
+                node_hover_text = f"Address: {node}<br>Transactions: {self.getNumberOfTransactions(node)}<br>Total transaction value (eth): {totalEth/1000000000000000000} eth<br>Total transaction value (usd): $test"
             else:
                 node_hover_text = f"Address: {node}"
             hover_text.append(node_hover_text)
