@@ -98,15 +98,15 @@ class Page():
             # Determine which input triggered the callback
             ctx = callback_context
             trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
-
+        
             if trigger_id == 'submit-button' and value:
                 self.currentAddress = value
                 self.transactionGraph = Graph(self.key, self.currentAddress, transactionType)
                 self.transactionGraph.getTopTransactionData(10)
                 return self.transactionGraph.createGraphFromDict()
+            
             elif trigger_id == 'network-graph' and clickData:
                 clicked_node = clickData['points'][0]['text'].split('<br>')[0].split(":")[1].strip()
-                print(clicked_node)
                 self.currentAddress = clicked_node
                 self.transactionGraph = Graph(self.key, self.currentAddress,transactionType)
                 self.transactionGraph.getTopTransactionData(10)
