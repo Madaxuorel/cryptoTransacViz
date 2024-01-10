@@ -1,5 +1,6 @@
 import sys
 sys.path.append("../")
+sys.path.append("../transactions")
 import numpy as np
 from api import etherscan
 import networkx as nx
@@ -26,13 +27,20 @@ class Graph():
         self.currentAddress = address.lower()
         self.api = etherscan.etherScanApi(key)
 
-    def getTopTransactionData(self,N):
-        self.dataToShow = self.api.getTopNAddressesReceived(self.currentAddress,N+1)
-        print(self.dataToShow)
-        try:
-            self.dataToShow.pop(self.currentAddress)
-        except KeyError as k:
-            print(f"Nothing to pop on {self.currentAddress}")
+    def getTopTransactionData(self,N,transactionType):
+        if transactionType == "from":
+            self.dataToShow = self.api.getTopNAddressesReceived(self.currentAddress,N+1)
+            try:
+                self.dataToShow.pop(self.currentAddress)
+            except KeyError as k:
+                print(f"Nothing to pop on {self.currentAddress}")
+        elif transactionType == "to":
+            self.dataToShow = self.api.getTopNAddressesSent(self.currentAddress,N+1)
+            try:
+                self.dataToShow.pop(self.currentAddress)
+            except KeyError as k:
+                print(f"Nothing to pop on {self.currentAddress}")
+            
         
     
     def createGraphFromDict(self):
@@ -74,7 +82,6 @@ class Graph():
         # Create a color map based on whether the node address is in the 'addresses' list
         node_color_map = ['red' if node in addresses else 'black' for node in G.nodes()]
         isFraud = 'red' in node_color_map
-        print(isFraud)
         annotations = []
         if isFraud:
             annotations.append(

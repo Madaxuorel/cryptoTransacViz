@@ -61,3 +61,20 @@ class etherScanApi:
         addressesReceived = self.getTopAddressesReceived(account)
         return {k: v for i, (k, v) in enumerate(addressesReceived.items()) if i < N}
         
+    def getTopAddressesSent(self,account):
+        transactions = self.getLatestTransactions(account)
+        addressesSent = {}
+        for transaction in transactions:
+            if transaction["to"] not in addressesSent.keys():
+                addressesSent[transaction["to"]] = 1
+            else:
+                addressesSent.update({transaction["to"]:addressesSent[transaction["to"]]+1})
+        
+        addressesReceived = dict(sorted(addressesSent.items(), key=lambda item: item[1], reverse=True))
+
+        return addressesSent
+    
+    def getTopNAddressesSent(self,account,N):
+        
+        addressesSent = self.getTopAddressesSent(account)
+        return {k: v for i, (k, v) in enumerate(addressesSent.items()) if i < N}

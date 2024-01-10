@@ -30,13 +30,12 @@ class Page():
     def __init__(self,etherScanApiKey):
         self.currentAddress = ''
         self.blacklist = blacklistedAddresses()
-        print(self.blacklist)
         self.key = etherScanApiKey
         self.app = dash.Dash(__name__)
 
         # Define the initial layout
         self.app.layout = html.Div([
-    html.H1("Transaction explorer", style={'textAlign': 'center'}),
+    html.H1("Network Graph Visualization", style={'textAlign': 'center'}),
     html.Div(
         [
             dcc.Input(
@@ -46,17 +45,30 @@ class Page():
                 debounce=True,
                 style={'flex': '1', 'marginRight': '10px'}
             ),
+            dcc.Dropdown(
+                id='dropdown',
+                options=[
+                    {'label': 'From', 'value': 'from'},
+                    {'label': 'To', 'value': 'to'}
+                ],
+                value='received',  # Default value
+                style={'marginRight': '10px'}
+            ),
             html.Button('Submit', id='submit-button', n_clicks=0)
         ],
         style={
             'display': 'flex', 
             'justifyContent': 'center', 
             'alignItems': 'center',
-            'width': '50%', 
+            'width': '80%', 
             'margin': '0 auto'
         }
     ),
-    dcc.Loading(id="loading-1", type="default", children=[dcc.Graph(id='network-graph',figure=emptyGraph())]),
+    dcc.Loading(
+        id="loading-1",
+        type="default",
+        children=[dcc.Graph(id='network-graph',figure=emptyGraph())]
+    ),
 ])
         self.setup_callbacks()
         
@@ -70,14 +82,14 @@ class Page():
         @self.app.callback(
             Output('network-graph', 'figure'),
             [Input('submit-button', 'n_clicks')],
-            [State('input-field', 'value')]
-        )
-        def updateGraph(n_clicks, value):
+            [State('input-field', 'value'), State('dropdown', 'value')]        
+            )
+        def updateGraph(n_clicks, value, transactionType):
             if n_clicks and value:
                 self.currentAddress = value
                 # Now use self.currentAddress to update the graph
                 self.transactionGraph = Graph(self.key, self.currentAddress)
-                self.transactionGraph.getTopTransactionData(10)
+                self.transactionGraph.getTopTransactionData(10,transactionType)
                 toDisplay = self.transactionGraph.createGraphFromDict()
                 #toDisplay.update_layout(height=900)
                 return toDisplay
