@@ -10,7 +10,10 @@ from api.etherscan import etherScanApi
 from transactions.fraudAccounts import blacklistedAddresses
 
 key = "TWUQ778V3WRVAW2EBX1XZZ9BNHDGQN442B"
-
+"""
+Reads the credentials 
+TODO : move to separate file + security
+"""
 def readCreds():
     try:
         with open("../utils/keys.json", 'r') as json_file:
@@ -20,11 +23,13 @@ def readCreds():
         print("Config file not found.")
         return None
 
-
+"""
+Main webapp object, contains the vars and methods to display the graph and update it. 
+"""
 class Page():
-    
+
     """
-    Page html code, modified by callbacks    
+    Initialise the page layout
     """
     def __init__(self,etherScanApiKey):
         self.currentAddress = ''
@@ -78,6 +83,9 @@ class Page():
     """
     def setup_callbacks(self):
         
+        """
+        Read the input in the search bar + the search category and generates a new graph from it.
+        """
         @self.app.callback(
             Output('network-graph', 'figure'),
             [Input('submit-button', 'n_clicks')],
@@ -93,7 +101,10 @@ class Page():
                 #toDisplay.update_layout(height=900)
                 return toDisplay
             return dash.no_update
-         
+    
+    """
+    Runs the app.
+    """
     def runApp(self):
         self.app.run(debug=True)
     
@@ -101,7 +112,5 @@ class Page():
     
 
 page = Page(key)
-
-page.currentAddress = "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 page.runApp()
 
