@@ -147,21 +147,7 @@ class Graph():
         self.G = nx.compose(self.G,otherGraph.G)
         self.dataToShow.update(otherGraph.dataToShow)
     
-def mergeGraphs(graph1,graph2):
-    merged_figure = go.Figure()
 
-    # Add all traces from fig1
-    for trace in graph1['data']:
-        merged_figure.add_trace(trace)
-
-    # Add all traces from fig2
-    for trace in graph2['data']:
-        merged_figure.add_trace(trace)
-
-    # Set layout (you might want to merge or adjust the layout as well)
-    merged_figure.update_layout(graph1['layout'])
-
-    return merged_figure
 
 def emptyGraph():
         initial_figure = go.Figure(

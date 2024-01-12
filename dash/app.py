@@ -6,7 +6,7 @@ import json
 import networkx as nx
 
 sys.path.append("../")
-from transactions.visualisation import Graph,emptyGraph,mergeGraphs
+from transactions.visualisation import Graph,emptyGraph
 from api.etherscan import etherScanApi
 from transactions.fraudAccounts import blacklistedAddresses
 
@@ -101,6 +101,7 @@ class Page():
             trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
         
             if trigger_id == 'submit-button' and value:
+                
                 self.currentAddress = value
                 self.transactionGraph = Graph(self.key, self.currentAddress, transactionType)
                 self.transactionGraph.getTopTransactionData(10)
