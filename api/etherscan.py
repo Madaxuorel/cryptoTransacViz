@@ -27,7 +27,6 @@ class etherScanApi:
     Returns eth/usd pair value at current time.
     """
     def getEthValue(self):
-        print("CALL")
         url = f"https://api.etherscan.io/api?module=stats&action=ethprice&apikey={self.key}"
         ethUsd = requests.get(url).json().get('result').get('ethusd')
         return float(ethUsd)

@@ -3,9 +3,10 @@ from dash import dcc,html,callback_context
 from dash.dependencies import Input, Output, State
 import sys
 import json
+import networkx as nx
 
 sys.path.append("../")
-from transactions.visualisation import Graph,emptyGraph
+from transactions.visualisation import Graph,emptyGraph,mergeGraphs
 from api.etherscan import etherScanApi
 from transactions.fraudAccounts import blacklistedAddresses
 
@@ -103,16 +104,24 @@ class Page():
                 self.currentAddress = value
                 self.transactionGraph = Graph(self.key, self.currentAddress, transactionType)
                 self.transactionGraph.getTopTransactionData(10)
-                return self.transactionGraph.createGraphFromDict()
+                self.transactionGraph.createNetworkXGraph()
+                print(self.transactionGraph.G)
+                self.transactionGraph.createPlotlyFigure()
+                return self.transactionGraph.fig
             
             elif trigger_id == 'network-graph' and clickData:
                 clicked_node = clickData['points'][0]['text'].split('<br>')[0].split(":")[1].strip()
-                self.currentAddress = clicked_node
-                self.transactionGraph = Graph(self.key, self.currentAddress,transactionType)
-                self.transactionGraph.getTopTransactionData(10)
-                toDisplay = self.transactionGraph.createGraphFromDict()
-                #toDisplay.update_layout(height=900)
-                return toDisplay
+                
+                newGraph = Graph(self.key,clicked_node,transactionType)
+                newGraph.getTopTransactionData(10)       
+                newGraph.createNetworkXGraph()
+                newGraph.mergeWith(self.transactionGraph)
+                
+                print(newGraph.G)
+                newGraph.createPlotlyFigure()
+                self.transactionGraph = newGraph
+                
+                return self.transactionGraph.fig
 
             return dash.no_update
             

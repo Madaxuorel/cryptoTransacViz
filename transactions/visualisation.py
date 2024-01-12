@@ -24,6 +24,7 @@ def readCreds():
 
 class Graph():
     def __init__(self,key,address,transactionType):
+        print("new graph init")
         self.transactionType = transactionType
         self.currentAddress = address.lower()
         self.api = etherscan.etherScanApi(key)
@@ -32,14 +33,14 @@ class Graph():
         if self.transactionType == "from":
             self.dataToShow = self.api.getTopNAddressesReceived(self.currentAddress,N+1)
             try:
-                self.dataToShow.pop(self.currentAddress)
+                #self.dataToShow.pop(self.currentAddress)
                 self.dataToShow.pop('')
             except KeyError as k:
                 print(f"Nothing to pop on {self.currentAddress}")
         elif self.transactionType == "to":
             self.dataToShow = self.api.getTopNAddressesSent(self.currentAddress,N+1)
             try:
-                self.dataToShow.pop(self.currentAddress)
+                #self.dataToShow.pop(self.currentAddress)
                 self.dataToShow.pop('')
             except KeyError as k:
                 print(f"Nothing to pop on {self.currentAddress}")
@@ -50,23 +51,24 @@ class Graph():
         
         return self.dataToShow[account]
     
-    def createGraphFromDict(self):
-        # Initialize a NetworkX graph and add the central node
-        G = nx.Graph()
-        G.add_node(self.currentAddress)
+    
+    def createNetworkXGraph(self):
+        print(f"creating graph from center {self.currentAddress}")
+        self.G = nx.Graph()
+        self.G.add_node(self.currentAddress)
 
-        # Add edges to the NetworkX graph with 'timesUsed' as the weight
         for address, timesUsed in self.dataToShow.items():
-            G.add_edge(self.currentAddress, address, weight=timesUsed)
+            self.G.add_edge(self.currentAddress, address, weight=timesUsed)
 
-        # Apply spring layout to position nodes
-        pos = nx.spring_layout(G)
-
-        # Create a plotly graph
+    def createPlotlyFigure(self,):
+        if self.G is None:
+            raise ValueError("NetworkX graph not created yet")
+    
+        pos = nx.spring_layout(self.G)
         fig = go.Figure()
 
         # Add edges to the graph
-        for edge in G.edges(data=True):
+        for edge in self.G.edges(data=True):
             x0, y0 = pos[edge[0]]
             x1, y1 = pos[edge[1]]
             weight = edge[2]['weight']
@@ -83,21 +85,21 @@ class Graph():
 
         # Check for fraudulent addresses
         addresses = blacklistedAddresses()
-        node_color_map = ['red' if node in addresses else 'black' for node in G.nodes()]
+        node_color_map = ['red' if node in addresses else 'black' for node in self.G.nodes()]
         isFraud = 'red' in node_color_map
-
+        
         # Add a trace for the nodes
         node_x, node_y, hover_text = [], [], []
-        for node in G.nodes():
+        for node in self.G.nodes():
             x, y = pos[node]
             node_x.append(x)
             node_y.append(y)
 
             # Multi-line hover text for each node
             if node != self.currentAddress:
-                totalEth = self.api.getEthValueTransferred(node,self.transactionType)/1000000000000000000
-                totalUsd = totalEth * self.api.getEthValue()
-                node_hover_text = f"Address: {node}<br>Transactions: {self.getNumberOfTransactions(node)}<br>Total transaction value (eth): {totalEth} eth<br>Total transaction value (usd): {totalUsd}"
+                #totalEth = self.api.getEthValueTransferred(node,self.transactionType)/1000000000000000000
+                #totalUsd = totalEth * self.api.getEthValue()
+                node_hover_text = f"Address: {node}<br>Transactions: {self.getNumberOfTransactions(node)}<br>Total transaction value (eth): aaa eth<br>Total transaction value (usd): aaa"
             else:
                 node_hover_text = f"Address: {node}"
             hover_text.append(node_hover_text)
@@ -109,7 +111,7 @@ class Graph():
             marker=dict(size=10, color=node_color_map, line=dict(width=2)),
             hoverinfo='text'
         )
-
+        
         fig.add_trace(node_trace)
 
         # Add annotations for fraud alert
@@ -127,7 +129,7 @@ class Graph():
                     align='center'
                 )
             )
-
+        
         # Customize the appearance of the graph
         fig.update_layout(
             height=900,
@@ -138,9 +140,28 @@ class Graph():
             plot_bgcolor='rgba(0,0,0,0)',
             annotations=annotations
         )
+        self.fig = fig
+        
+        
+    def mergeWith(self,otherGraph):
+        self.G = nx.compose(self.G,otherGraph.G)
+        self.dataToShow.update(otherGraph.dataToShow)
+    
+def mergeGraphs(graph1,graph2):
+    merged_figure = go.Figure()
 
-        return fig
+    # Add all traces from fig1
+    for trace in graph1['data']:
+        merged_figure.add_trace(trace)
 
+    # Add all traces from fig2
+    for trace in graph2['data']:
+        merged_figure.add_trace(trace)
+
+    # Set layout (you might want to merge or adjust the layout as well)
+    merged_figure.update_layout(graph1['layout'])
+
+    return merged_figure
 
 def emptyGraph():
         initial_figure = go.Figure(
@@ -164,4 +185,3 @@ def emptyGraph():
             )
         )
         return initial_figure
-
