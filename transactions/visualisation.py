@@ -171,3 +171,59 @@ def emptyGraph():
             )
         )
         return initial_figure
+
+def mapNodeNamesToCoordinates(fig):
+    """
+    Create a mapping of node names to their coordinates in a Plotly graph.
+
+    :param fig: Plotly figure object representing the graph.
+    :return: A dictionary mapping node names to their (x, y) coordinates.
+    """
+    node_trace = fig.data[-1]  # Assuming the last trace is for nodes
+    node_name_to_coordinates = {}
+
+    for i, node_text in enumerate(node_trace.text):
+        # Extract the node name from the hover text
+        node_name = node_text.split('<br>')[0].split(": ")[1]
+        x_coord = node_trace.x[i]
+        y_coord = node_trace.y[i]
+
+        # Map the node name to its coordinates
+        node_name_to_coordinates[node_name] = (x_coord, y_coord)
+
+    return node_name_to_coordinates
+
+def highlightPastCenters(fig, past_centers, node_color='orange', line_color='orange'):
+    # Map node names to coordinates
+    node_name_to_coords = mapNodeNamesToCoordinates(fig)
+    past_center_coords = [node_name_to_coords[name] for name in past_centers if name in node_name_to_coords]
+    # Update node colors
+    node_trace = fig.data[-1]  # Assuming the last trace is for nodes
+    new_node_colors = list(node_trace.marker.color)
+    
+    for i, node_text in enumerate(node_trace.text):
+        node_name = node_text.split('<br>')[0].split(": ")[1]
+        if node_name in past_centers:
+            new_node_colors[i] = node_color
+    
+    node_trace.marker.color = new_node_colors
+
+    # Add highlighted edges
+    for edge_trace in fig.data[:-1]:
+        for i in range(0, len(edge_trace.x), 3):
+            start_pos = (edge_trace.x[i], edge_trace.y[i])
+            end_pos = (edge_trace.x[i + 1], edge_trace.y[i + 1])
+            if start_pos in past_center_coords and end_pos in past_center_coords:
+                # Create a new trace for the highlighted edge
+                fig.add_trace(go.Scatter(
+                    x=[start_pos[0], end_pos[0], None],
+                    y=[start_pos[1], end_pos[1], None],
+                    mode='lines',
+                    line=dict(color=line_color, width=2),
+                    hoverinfo='none'
+                ))
+
+    return fig
+
+
+

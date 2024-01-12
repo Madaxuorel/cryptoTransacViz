@@ -6,7 +6,7 @@ import json
 import networkx as nx
 
 sys.path.append("../")
-from transactions.visualisation import Graph,emptyGraph
+from transactions.visualisation import Graph,emptyGraph, highlightPastCenters
 from api.etherscan import etherScanApi
 from transactions.fraudAccounts import blacklistedAddresses
 
@@ -77,6 +77,7 @@ class Page():
         children=[dcc.Graph(id='network-graph',figure=emptyGraph())]
     ),
 ])
+        self.pastCenters = []
         self.setup_callbacks()
         
         
@@ -106,8 +107,10 @@ class Page():
                 self.transactionGraph = Graph(self.key, self.currentAddress, transactionType)
                 self.transactionGraph.getTopTransactionData(10)
                 self.transactionGraph.createNetworkXGraph()
-                print(self.transactionGraph.G)
                 self.transactionGraph.createPlotlyFigure()
+                
+                self.pastCenters.append(self.currentAddress.lower())
+                self.transactionGraph.fig = highlightPastCenters(self.transactionGraph.fig,self.pastCenters)
                 return self.transactionGraph.fig
             
             elif trigger_id == 'network-graph' and clickData:
@@ -118,9 +121,11 @@ class Page():
                 newGraph.createNetworkXGraph()
                 newGraph.mergeWith(self.transactionGraph)
                 
-                print(newGraph.G)
                 newGraph.createPlotlyFigure()
                 self.transactionGraph = newGraph
+                
+                self.pastCenters.append(newGraph.currentAddress.lower())
+                self.transactionGraph.fig = highlightPastCenters(self.transactionGraph.fig,self.pastCenters)
                 
                 return self.transactionGraph.fig
 
